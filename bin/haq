@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+# In the name of Allah, the most Gracious, the most Merciful.
+# A script to play Quran verses
+# https://gitlab.com/Abdullah/haq.git
+
+USAGE="
+USAGE:\n
+\n
+$0 Surah Ayah Reciter[shuraim|sudais]\n
+\n
+Example:\n
+\n
+  $0 1 1 shuraim \n
+  $0 36 83 sudais
+"
+[[ $# -eq 0 ]] && { echo ""; echo -e $USAGE; echo ""; exit 1; }
+
+if [ $# -eq 1 ] ; then
+  exec >&2; echo ""; echo -e $USAGE
+
+  if ! [[ "$1" =~ ^[1-9]+$ ]] ; then
+    echo  "   ERROR: Surah number is missing or is not a number."
+  elif
+    ! [[ "$2" =~ ^[0-9]+$ ]] ; then
+    echo "   ERROR: Ayah number is missing or is not a number."
+  fi
+
+  echo ""; exit 1
+fi
+
+haq="$HOME/haq"
+Surah="$1"
+Ayah="$2"
+#[[ $Ayah = "*-*" ]] && multiple_Ayah=$(cat $Ayah | cut -d - -f1 
+
+Reciter="$3"
+[[ -z $Reciter ]] && Reciter='shuraim'
+complete_Verses="$(ls $haq/$Reciter/$(printf '%03d' $Surah)*)"
+player="$(which mpv) --no-resume-playback"
+
+if [[ $Ayah = *"-"* ]]; then
+  multi1=$(echo $Ayah | cut -d - -f1)
+  multi2=$(echo $Ayah | cut -d - -f2)
+  multi_Surah=$(printf '%03d' $Surah)
+  #Ayah=$(ls $haq/$Reciter/$(printf '%03d' $Surah){$multi1..$multi2}.mp3)
+ dil=$(ls $haq/$Reciter/$multi_Surah{$multi1..$multi2}.mp3)
+ echo $dil
+  #mpv --no-resume-playback $(ls $haq/$Reciter/$multi_Surah{$multi1..$multi2}.mp3)
+fi
+
+
+
+play()
+{
+  printf -v file '%03d%03d.mp3' $Surah $Ayah; $player $haq/$Reciter/$file
+}
+
+# TODO:
+# lowercase/uppercase compatible
+# play different Ayah from this Ayah to this Ayah
+
+Bismillah()
+{
+  $player $haq/Bismillah.mp3
+}
+
+play_Surah()
+{
+  $player $complete_Verses
+}
+
+#[[ $Ayah -eq 0 && $Surah -eq 9 ]] && play_Surah
+#[[ $Ayah -eq 0 && $Surah -ne 9 ]] && Bismillah && play_Surah
+
+#[[ $Ayah -ne 0 ]] && play
